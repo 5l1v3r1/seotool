@@ -2,7 +2,7 @@
 # Author: Damian Schwyrz
 # URL: http://damianschwyrz.de
 # Github: https://github.com/Damian89/seotool
-# Date: 2015-11-28
+# Date: 2017-01-26
 
 #!/usr/bin/perl
 
@@ -70,6 +70,7 @@ my $kpp;
 
 ## Get keywordlist for this hour ##
 $query = "SELECT keywordID, keywordName, parentProjectID FROM st_keywords WHERE keywordUpdateHour=".get_time('hour')." AND keywordUpdated NOT LIKE '".get_time('c_date')."%'";
+#$query = "SELECT keywordID, keywordName, parentProjectID FROM st_keywords WHERE keywordName='s.oliver damenuhren' OR keywordName='festina damenuhren'";
 $query_handle = $connect->prepare($query);
 $query_handle->execute();
 $query_handle->bind_columns(undef, \$kid, \$kname, \$kpp);
@@ -135,7 +136,7 @@ sub getGoogleResponse
     my $keywordName     = $_[0];
     my $message;
 
-    my $userAgent = LWP::UserAgent->new(agent => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36", cookie_jar => {});
+    my $userAgent = LWP::UserAgent->new(agent => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36", cookie_jar => {});
 
     $userAgent->default_header('Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8','Accept-Language' => "de,en-US;q=0.7,en;q=0.3",'Cache-Control' => 'max-age=0');
 
@@ -147,9 +148,7 @@ sub getGoogleResponse
 
         if( $debug eq 1) { print 'HTTP-Status: '.$response->status_line."\n"; }
 
-        my @requestResultForKeyword = $response->content =~ /<(div|li) class=\"g\"(.+?)<\/(div|li)>/gi;
-
-        return @requestResultForKeyword;
+        return $response->content;
 
     } else {
         $message = "Request was not successful\n"."HTTP-Status: ".$response->status_line."\n"."Reasons: Google blocked your crawler, IP on some kind of blacklist,...\n";
@@ -174,7 +173,7 @@ sub extractFromGoogleResponse
     my $keywordName;
     my $rankedURLdetected;
     my $rankingPositionDetected;
-
+    my $rankNow = 0;
 
     @googleResponse  = @{$_[0]};
     $projectURL      = $_[1];
@@ -185,18 +184,37 @@ sub extractFromGoogleResponse
 
     if( $debug eq 1 ) { print 'Start extracting data for url "'.$projectURL.'"'."\n"; }
 
-    foreach my $line (@googleResponse)
+
+    foreach my $content (@googleResponse)
     {
-        if (index($line,$projectURL) != -1)
-        {
 
-            my @inLineContent = $line=~ /<(h3|span) class=\"(r|_Tyb)\"><a(.*)href=\"(.*)\" onmousedown=\"return rwt\(this,'','','','(\d{1,3})','(.*)',event\)\">(.*)<\/a><\/(h3|span)>/gi;
+	# <div class="rc" data-hveid="704" data-ved="0ahUKEwihvYSN59_RAhVLK8AKHabkBMgQFQjABShVMGg">
+	# <h3 class="r">
+	# <a href="http://uhren-schmuck-online.de/marken/festina/festina-damen/" onmousedown="return rwt(this,\'\',\'\',\'\',\'\',\'AFQjCNE4R0RVSIAXgnc0LbLjEYlfEXmS5g\',\'\',\'0ahUKEwihvYSN59_RAhVLK8AKHabkBMgQFgjBBTBo\',\'\',\'\',event)">
+	# Festina Damen | Festina | Marken | uhren-schmuck-online.de ...
+	# </a>
+	# </h3>
 
-            $rankedURLdetected          = $inLineContent[3];
-            $rankingPositionDetected    = int($inLineContent[4]);
+	my @inLineContentNew = $content=~ m/<h3 class=\"r\">(.+?)<\/h3>/ig;
+	$rankNow = 0;
+	foreach my $line (@inLineContentNew) {
 
-            last;
-        }
+		if(index($line,'onmousedown')) {
+			$rankNow++;
+		}
+		
+        	if (index($line,$projectURL) != -1)
+        	{
+
+	            	my @inLineContent = $line =~ /<a(.*)href=\"(.*)\" onmousedown(.*)>(.*)<\/a>/gi;
+
+            		$rankedURLdetected          = $inLineContent[1];
+            		$rankingPositionDetected    = $rankNow;
+
+            		last;
+        	}
+	}
+
     }
 
 
