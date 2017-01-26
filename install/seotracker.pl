@@ -70,7 +70,6 @@ my $kpp;
 
 ## Get keywordlist for this hour ##
 $query = "SELECT keywordID, keywordName, parentProjectID FROM st_keywords WHERE keywordUpdateHour=".get_time('hour')." AND keywordUpdated NOT LIKE '".get_time('c_date')."%'";
-#$query = "SELECT keywordID, keywordName, parentProjectID FROM st_keywords WHERE keywordName='s.oliver damenuhren' OR keywordName='festina damenuhren'";
 $query_handle = $connect->prepare($query);
 $query_handle->execute();
 $query_handle->bind_columns(undef, \$kid, \$kname, \$kpp);
@@ -187,13 +186,6 @@ sub extractFromGoogleResponse
 
     foreach my $content (@googleResponse)
     {
-
-	# <div class="rc" data-hveid="704" data-ved="0ahUKEwihvYSN59_RAhVLK8AKHabkBMgQFQjABShVMGg">
-	# <h3 class="r">
-	# <a href="http://uhren-schmuck-online.de/marken/festina/festina-damen/" onmousedown="return rwt(this,\'\',\'\',\'\',\'\',\'AFQjCNE4R0RVSIAXgnc0LbLjEYlfEXmS5g\',\'\',\'0ahUKEwihvYSN59_RAhVLK8AKHabkBMgQFgjBBTBo\',\'\',\'\',event)">
-	# Festina Damen | Festina | Marken | uhren-schmuck-online.de ...
-	# </a>
-	# </h3>
 
 	my @inLineContentNew = $content=~ m/<h3 class=\"r\">(.+?)<\/h3>/ig;
 	$rankNow = 0;
