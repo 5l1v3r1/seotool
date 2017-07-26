@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `st_keywords` (
   `keywordName` varchar(255) NOT NULL,
   `keywordTraffic` int(11) DEFAULT NULL,
   `parentProjectID` int(11) NOT NULL,
-  `keywordUpdateHour` int(11) DEFAULT NUL,
+  `keywordUpdateHour` int(11) DEFAULT NULL,
   `keywordAdded` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `keywordUpdated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`keywordID`),
