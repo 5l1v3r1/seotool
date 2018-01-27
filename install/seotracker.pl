@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # Part of SEO Tool v2
 # Author: Damian Schwyrz
 # URL: http://damianschwyrz.de
@@ -31,7 +32,7 @@ my $port     = '3306';
 my $platform = 'mysql';
 my $dsn      = "dbi:$platform:$database:$host:$port";
 
-my $connect  = DBI->connect($dsn, $user, $pw);
+my $connect  = DBI->connect($dsn, $user, $pw) || die $DBI::errstr;
 $connect->do("SET NAMES 'utf8'");
 
 my $query;
@@ -86,7 +87,7 @@ while($query_handle->fetch())
     if( $active eq 1 ) { @googleResponse = getGoogleResponse( $kname ); }
 
     ## Search in the current google response for projects associated with this keyword ##
-    foreach my $projectID (keys ($projects{$kpp}) )
+    foreach my $projectID (keys %{$projects{$kpp}} )
     {
 
         if( $active eq 1 ) {
@@ -191,14 +192,14 @@ sub extractFromGoogleResponse
 	$rankNow = 0;
 	foreach my $line (@inLineContentNew) {
 
-		if(index($line,'onmousedown')) {
+		if(index($line,'onmousedown') || index($line, 'ping=')) {
 			$rankNow++;
 		}
 		
-        	if (index($line,$projectURL) != -1)
+        	if(index($line,$projectURL) != -1)
         	{
 
-	            	my @inLineContent = $line =~ /<a(.*)href=\"(.*)\" onmousedown(.*)>(.*)<\/a>/gi;
+	            	my @inLineContent = $line =~ /<a(.*)href=\"(.*?)\"[^>]+>(.*)<\/a>/gi;
 
             		$rankedURLdetected          = $inLineContent[1];
             		$rankingPositionDetected    = $rankNow;
@@ -254,9 +255,9 @@ sub saveRankingForURL
 
     if( $rankingPos > 0 && $rankingURL ne '' )
     {
-        $insert = "INSERT INTO st_rankings (keywordID, projectID, rankingPosition, rankingURL, rankingAddedDay) VALUES ($keywordID, $projectID, $rankingPos, $rankingURL, '".get_time('c_date')."')";
+        $insert = "INSERT INTO st_rankings (keywordID, projectID, rankingPosition, rankingURL, rankingAddedDay) VALUES (?, ?, ?, ?, ?)";
         $insert_handle = $connect->prepare($insert);
-        $insert_handle->execute() || dberror ("Error at first insert: $DBI::errstr");
+        $insert_handle->execute( $keywordID, $projectID, $rankingPos, $rankingURL, get_time('c_date') ) || dberror ("Error at first insert: $DBI::errstr");
         $insert_handle->finish();
 
     }
