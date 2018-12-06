@@ -1,3 +1,5 @@
+<h1>!IMPORTANT!: This tool is not developed/updated any more. I started using professional but good services which adjust to new google changes faster: <a href="https://metrics.tools/x/hufe/">https://metrics.tools/</a> is what I am using currently.</h1>
+
 <h1>SEO Tool v2 by damianschwyrz.de</h1>
 <p>Das Tool bietet im Grunde die gleichen Funktionen, wie die erste Version. Hinzugekommen sind einige neue Funktionen, die Codebasis wurde komplett überarbeitet. Außerdem kommt ein ordentliches Adminpanel zum Einsatz. Ich hab mich da für SB Admin entschieden.</p>
 <strong>Mehr Informationen bzw. als Startpunkt:</strong> Blogartikel "<a href="https://www.damianschwyrz.de/seo-tool-v2-mit-neuen-funktionen/" target="_blank">SEO Tool v2 mit neuen Funktionen</a>"
