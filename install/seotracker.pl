@@ -188,7 +188,7 @@ sub extractFromGoogleResponse
     foreach my $content (@googleResponse)
     {
 
-	my @inLineContentNew = $content=~ m/<h3 class=\"r\">(.+?)<\/h3>/ig;
+	my @inLineContentNew = $content=~ m/<div class=\"r\">(.+?)<\/div>/ig;
 	$rankNow = 0;
 	foreach my $line (@inLineContentNew) {
 
